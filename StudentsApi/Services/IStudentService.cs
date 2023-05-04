@@ -6,9 +6,9 @@ namespace StudentsApi.Services
     {
         Task<IEnumerable<Student>> GetAllStudents();
         Task<Student> GetStudentById(int id);
-        Task<IEnumerable<Student>> GetAllStudentsByName(string name);
+        Task<IEnumerable<Student>> GetStudentsByName(string name);
         Task CreateStudent(Student student);
         Task UpdateStudent(Student student);
-        Task DeleteStudent(int id);
+        Task DeleteStudent(Guid id);
     }
 }

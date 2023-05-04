@@ -1,37 +1,100 @@
-﻿using StudentsApi.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using StudentsApi.Context;
+using StudentsApi.Models;
 
 namespace StudentsApi.Services
 {
     public class StudentService : IStudentService
     {
-        public Task CreateStudent(Student student)
+        private readonly StudentDbContext _context;
+
+        public StudentService(StudentDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task DeleteStudent(int id)
+        public async Task<IEnumerable<Student>> GetAllStudents()
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await _context.Students.AsNoTracking().ToListAsync();
+            }
+            catch 
+            {
+                throw;
+            }
+           
         }
 
-        public Task<IEnumerable<Student>> GetAllStudents()
+        public async Task<IEnumerable<Student>> GetStudentsByName(string name)
         {
-            throw new NotImplementedException();
+            IEnumerable<Student> students;
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                students = await _context.Students.Where(x => x.Name == name).AsNoTracking().ToListAsync();
+            }
+            else
+            {
+                students = await GetAllStudents();
+            }
+            return students;
+
         }
 
-        public Task<IEnumerable<Student>> GetAllStudentsByName(string name)
+
+        public async Task CreateStudent(Student student)
         {
-            throw new NotImplementedException();
+            try
+            {
+               _context.Students.Add(student);
+               await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw ;
+            }
         }
 
-        public Task<Student> GetStudentById(int id)
+        public async Task DeleteStudent(Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var student = _context.Students.FirstOrDefault(x => x.Id.Equals(id));
+                if (student != null)
+                {
+                    _context.Students.Remove(student);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
 
-        public Task UpdateStudent(Student student)
+        public async Task<Student> GetStudentById(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var student = await _context.Students.FindAsync(id);
+                return student;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task UpdateStudent(Student student)
+        {
+            _context.Entry(student).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
         }
     }
 }
